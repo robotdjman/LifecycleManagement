@@ -1,11 +1,16 @@
 package com.example.lifecyclemanagement
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.provider.MediaStore
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 
 
@@ -18,7 +23,10 @@ class MainActivity : AppCompatActivity() {
     lateinit var lastNameBox: EditText;
 
     //Image Button
-    lateinit var imageButton: ImageButton;
+    lateinit var imageButton: Button;
+
+    //Image View
+    lateinit var imageView: ImageView;
 
     //Buttons
     lateinit var saveButton: Button;
@@ -34,6 +42,15 @@ class MainActivity : AppCompatActivity() {
 
         //Image
         imageButton = window.findViewById(R.id.imageButton);
+        imageView = window.findViewById(R.id.imageView);
+        imageButton.setOnClickListener {
+            val camIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            try {
+                cameraLauncher.launch(camIntent);
+            } catch (ex: ActivityNotFoundException) {
+                //Do something
+            }
+        }
 
         //Next Button
         saveButton = window.findViewById(R.id.saveButton)
@@ -48,6 +65,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    private var cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if(it.resultCode == RESULT_OK) {
+            var photo: Bitmap = it.data!!.extras?.get("data") as Bitmap;
+            imageView.setImageBitmap(photo);
+        }
     }
 
     //Save instance variables
